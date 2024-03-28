@@ -5,7 +5,7 @@ import html
 import socket
 import sys
 import time
-import pickle
+import json
 
 def maybe_decode(s):
     try:
@@ -13,19 +13,17 @@ def maybe_decode(s):
     except:
         return s
 
-def load_pickle():
+def load_state(seen_file):
     try:
-        input = open("./rss2wcb.seen", mode="rb")
-        ret = pickle.load(input)
-        input.close()
+        with open(seen_file, mode="r") as input:
+            ret = json.load(input)
         return ret
     except:
-        return set()
+        return []
 
-def save_pickle(obj):
-    output = open("./rss2wcb.seen", mode="wb")
-    pickle.dump(obj, output, -1)
-    output.close()
+def save_state(seen_file, obj):
+    with open(seen_file, mode="w") as output:
+        json.dump(obj, output)
     return
 
 def main():
@@ -36,7 +34,8 @@ def main():
     channel = sys.argv[5]
     prefix = sys.argv[6]
 
-    seen = load_pickle()
+    seen_file = f"rss2wcb_{prefix}.seen"
+    seen = load_state(seen_file)
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -51,8 +50,8 @@ def main():
                 s = f"\x02[{prefix}]\x02 {title}: {link}"
                 sock.sendto((f"{wcbpass} {channel} {s}").encode('utf-8'),
                             (wcbip, wcbport))
-                seen.add(link)
-                save_pickle(seen)
+                seen.append(link)
+                save_state(seen_file, seen)
         time.sleep(30)
 
 
