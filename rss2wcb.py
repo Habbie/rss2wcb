@@ -29,6 +29,7 @@ def main():
 
         for item in feed["items"]:
             title = maybe_decode(item["title"])
+            title = title.split('\n')[0]
             link = item["link"]
             if link not in seen:
                 s = f"\x02[{prefix}]\x02 {title}: {link}"
