@@ -5,12 +5,28 @@ import html
 import socket
 import sys
 import time
+import pickle
 
 def maybe_decode(s):
     try:
         return html.unescape(s)
     except:
         return s
+
+def load_pickle():
+    try:
+        input = open("./rss2wcb.seen", mode="rb")
+        ret = pickle.load(input)
+        input.close()
+        return ret
+    except:
+        return set()
+
+def save_pickle(obj):
+    output = open("./rss2wcb.seen", mode="wb")
+    pickle.dump(obj, output, -1)
+    output.close()
+    return
 
 def main():
     feedurl = sys.argv[1]
@@ -20,7 +36,7 @@ def main():
     channel = sys.argv[5]
     prefix = sys.argv[6]
 
-    seen = set()
+    seen = load_pickle()
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -36,6 +52,7 @@ def main():
                 sock.sendto((f"{wcbpass} {channel} {s}").encode('utf-8'),
                             (wcbip, wcbport))
                 seen.add(link)
+                save_pickle(seen)
         time.sleep(30)
 
 
