@@ -33,6 +33,7 @@ def main():
     wcbpass = sys.argv[4]
     channel = sys.argv[5]
     prefix = sys.argv[6]
+    interval = int(sys.argv[7])
 
     seen_file = f"rss2wcb_{prefix}.seen"
     seen = load_state(seen_file)
@@ -52,7 +53,7 @@ def main():
                             (wcbip, wcbport))
                 seen.append(link)
                 save_state(seen_file, seen)
-        time.sleep(30)
+        time.sleep(interval)
 
 
 if __name__ == '__main__':
